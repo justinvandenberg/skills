@@ -54,7 +54,7 @@ The skills from [justinvandenberg/plugins](https://github.com/justinvandenberg/p
 
 ## Add a skill
 
-1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, `local` for a folder in `skills/`, or `orca` for a skill that the Orca app ships), and an optional `path`. Remote skills install from the source's default branch.
+1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, `local` for a folder in `skills/`, or `orca` for a skill that the Orca app ships), and an optional `path`. Remote skills install from the source's default branch. Add `"archive": true` to a remote entry whose repository clones too slowly: it installs from the GitHub archive instead (archify uses this).
 2. Run `npm test`, then `bin/skills-install --run` and `bin/skills-check`.
 
 ## Rules
