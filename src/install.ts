@@ -40,8 +40,12 @@ const ARCHIVE_SCRIPT = [
   'owner=$1; repo=$2; sub=$3; shift 3',
   'dir=$(mktemp -d)',
   `trap 'rm -rf "$dir"' EXIT`,
-  'curl -fsSL "https://codeload.github.com/$owner/$repo/tar.gz/HEAD" | tar -xz -C "$dir" --strip-components=1',
-  `npx ${CLI} add "$dir/$sub" ${FLAGS.join(' ')} --skill "$@"`,
+  // A download slower than 10 KB/s for 30 s counts as stalled: curl stops it and tries again, up to 3 times. It
+  // writes to a file, not a pipe, because a retry cannot take back data that it already sent down a pipe.
+  'curl -fsSL --speed-limit 10240 --speed-time 30 --retry 3 --retry-all-errors -o "$dir/archive.tar.gz" "https://codeload.github.com/$owner/$repo/tar.gz/HEAD"',
+  'mkdir "$dir/src"',
+  'tar -xzf "$dir/archive.tar.gz" -C "$dir/src" --strip-components=1',
+  `npx ${CLI} add "$dir/src/$sub" ${FLAGS.join(' ')} --skill "$@"`,
 ].join('; ');
 
 function archive(target: string, names: string[]): string[] {
