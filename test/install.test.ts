@@ -44,10 +44,17 @@ test('installs an archive entry from the GitHub archive, not a clone', () => {
   const argv = commands([entry('archify', 'tt-a1i/archify', {path: 'archify', archive: true})], ROOT);
   assert.equal(argv.length, 1);
   assert.deepEqual(argv[0].slice(0, 2), ['sh', '-c']);
-  assert.match(argv[0][2], /curl -fsSL "https:\/\/codeload\.github\.com\/\$owner\/\$repo\/tar\.gz\/HEAD"/);
-  assert.match(argv[0][2], /npx skills@1\.9\.0 add "\$dir\/\$sub" -g -a codex claude-code -y --skill "\$@"/);
+  assert.match(argv[0][2], /-o "\$dir\/archive\.tar\.gz" "https:\/\/codeload\.github\.com\/\$owner\/\$repo\/tar\.gz\/HEAD"/);
+  assert.match(argv[0][2], /tar -xzf "\$dir\/archive\.tar\.gz" -C "\$dir\/src" --strip-components=1/);
+  assert.match(argv[0][2], /npx skills@1\.9\.0 add "\$dir\/src\/\$sub" -g -a codex claude-code -y --skill "\$@"/);
   assert.match(argv[0][2], /trap 'rm -rf "\$dir"' EXIT/);
   assert.deepEqual(argv[0].slice(3), ['skills-archive', 'tt-a1i', 'archify', 'archify', 'archify']);
+});
+
+test('stops and retries a stalled archive download', () => {
+  const [argv] = commands([entry('archify', 'tt-a1i/archify', {path: 'archify', archive: true})], ROOT);
+  assert.match(argv[2], /curl -fsSL --speed-limit 10240 --speed-time 30 --retry 3 --retry-all-errors -o /);
+  assert.doesNotMatch(argv[2], /curl[^;]*\| *tar/, 'curl must not stream into tar, because a retry cannot take back sent data');
 });
 
 test('keeps manifest values out of the archive script text', () => {
