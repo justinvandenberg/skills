@@ -307,6 +307,42 @@
       "name": "cursor-harness",
       "source": "justinvandenberg/plugins",
       "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-type-system-discipline",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-boundary-discipline",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-encode-lessons-in-structure",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-prove-it-works",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-redesign-from-first-principles",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "principle-separate-before-serializing-shared-state",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
     }
   ]
 }

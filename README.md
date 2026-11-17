@@ -47,9 +47,9 @@ bin/skills-check            # confirm that both agents see every skill
 | Technology | effect-ts | Effect-TS/skills |
 | Memory | correct, recall, show-me-your-work | justinvandenberg/plugins (`agents-harness/skills`) |
 | Memory | retro | mattpocock/skills |
-| Harness | cursor-harness | justinvandenberg/plugins (`agents-harness/skills`) |
+| Harness | cursor-harness, principle-type-system-discipline, principle-boundary-discipline, principle-encode-lessons-in-structure, principle-prove-it-works, principle-redesign-from-first-principles, principle-separate-before-serializing-shared-state | justinvandenberg/plugins (`agents-harness/skills`) |
 
-The skills from [justinvandenberg/plugins](https://github.com/justinvandenberg/plugins) are pstack and cursor-team-kit skills from [cursor/plugins](https://github.com/cursor/plugins), built to run outside Cursor. Each one that uses a Cursor name points to `cursor-harness`, which maps those names to Codex or Claude Code. That is why `cursor-harness` is required.
+The skills from [justinvandenberg/plugins](https://github.com/justinvandenberg/plugins) are pstack and cursor-team-kit skills from [cursor/plugins](https://github.com/cursor/plugins), built to run outside Cursor. Each one that uses a Cursor name points to `cursor-harness`, which maps those names to Codex or Claude Code. That is why `cursor-harness` is required. The `principle-*` skills are required too: arena, show-me-your-work, and typescript-best-practices tell the agent to apply them.
 
 ## Add a skill
 

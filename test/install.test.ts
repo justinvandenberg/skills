@@ -13,22 +13,44 @@ test('groups names with the same location into one add command', () => {
   assert.deepEqual(argv, [['npx', 'skills@latest', 'add', 'mattpocock/skills', ...FLAGS, '--skill', 'tdd', 'triage']]);
 });
 
-test('uses a tree URL for an entry with a path', () => {
-  assert.equal(location(fork('arena'), ROOT), 'https://github.com/justinvandenberg/plugins/tree/main/agents-harness/skills');
+test('uses owner/repo/path for an entry with a path', () => {
+  assert.equal(location(fork('arena'), ROOT), 'justinvandenberg/plugins/agents-harness/skills');
 });
 
 test('splits one source with different paths into two commands', () => {
   const argv = commands([entry('x', 'o/r', {path: 'a'}), entry('y', 'o/r', {path: 'b'})], ROOT);
-  assert.deepEqual(argv.map(item => item[3]), ['https://github.com/o/r/tree/main/a', 'https://github.com/o/r/tree/main/b']);
+  assert.deepEqual(argv.map(item => item[3]), ['o/r/a', 'o/r/b']);
 });
 
 test('splits one source with different refs into two commands', () => {
   const argv = commands([entry('x', 'o/r', {ref: 'v1'}), entry('y', 'o/r', {ref: 'v2'})], ROOT);
-  assert.deepEqual(argv.map(item => item[3]), ['o/r@v1', 'o/r@v2']);
+  assert.deepEqual(argv.map(item => item[3]), ['o/r#v1', 'o/r#v2']);
 });
 
-test('uses the ref in a tree URL', () => {
-  assert.equal(location(entry('x', 'o/r', {path: 'skills', ref: 'canary'}), ROOT), 'https://github.com/o/r/tree/canary/skills');
+// The skills CLI reads `owner/repo@x` as a skill filter unless x is a full version or a commit SHA, so a branch or a
+// short tag after @ installs the default branch. `#<ref>` is a checkout ref in every case (vercel-labs/skills
+// src/source-parser.ts). These tests pin that form.
+test('pins a branch with #, never with @', () => {
+  assert.equal(location(entry('x', 'o/r', {ref: 'canary'}), ROOT), 'o/r#canary');
+});
+
+test('pins a short tag with #', () => {
+  assert.equal(location(entry('x', 'o/r', {ref: 'v1'}), ROOT), 'o/r#v1');
+});
+
+test('encodes a branch name with a slash', () => {
+  assert.equal(location(entry('x', 'o/r', {ref: 'feature/test'}), ROOT), 'o/r#feature%2Ftest');
+});
+
+test('pins a ref on an entry with a path', () => {
+  assert.equal(location(entry('x', 'o/r', {path: 'skills', ref: 'canary'}), ROOT), 'o/r/skills#canary');
+});
+
+test('never puts a ref after @', () => {
+  for (const ref of ['canary', 'v1', 'v1.2.3', 'feature/test']) {
+    assert.doesNotMatch(location(entry('x', 'o/r', {ref}), ROOT), /@/);
+    assert.doesNotMatch(location(entry('x', 'o/r', {path: 'p', ref}), ROOT), /@/);
+  }
 });
 
 test('installs a local entry from its folder in this repo', () => {

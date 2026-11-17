@@ -5,11 +5,16 @@ import type {Entry} from './manifest.ts';
 
 const FLAGS = ['-g', '-a', 'codex', 'claude-code', '-y'];
 
-/** The full install location of one entry: a tree URL, owner/repo[@ref], or a folder in this repo. */
+/**
+ * The full install location of one entry: owner/repo[/path][#ref], or a folder in this repo. The skills CLI reads
+ * `owner/repo@x` as a skill filter unless x is a full version or a commit SHA, so a ref always goes after `#`,
+ * URL-encoded, which the CLI reads as a checkout ref for any branch, tag, or commit (vercel-labs/skills
+ * src/source-parser.ts).
+ */
 export function location(entry: Entry, repoRoot: string): string {
   if (entry.source === 'local') return join(repoRoot, dirname(entry.path!));
-  if (entry.path) return `https://github.com/${entry.source}/tree/${entry.ref ?? 'main'}/${entry.path}`;
-  return entry.ref ? `${entry.source}@${entry.ref}` : entry.source;
+  const base = entry.path ? `${entry.source}/${entry.path}` : entry.source;
+  return entry.ref ? `${base}#${encodeURIComponent(entry.ref)}` : base;
 }
 
 /** One argv for each distinct location, in manifest order of first appearance. */
