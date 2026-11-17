@@ -22,37 +22,6 @@ test('splits one source with different paths into two commands', () => {
   assert.deepEqual(argv.map(item => item[3]), ['o/r/a', 'o/r/b']);
 });
 
-test('splits one source with different refs into two commands', () => {
-  const argv = commands([entry('x', 'o/r', {ref: 'v1'}), entry('y', 'o/r', {ref: 'v2'})], ROOT);
-  assert.deepEqual(argv.map(item => item[3]), ['o/r#v1', 'o/r#v2']);
-});
-
-// The skills CLI reads `owner/repo@x` as a skill filter unless x is a full version or a commit SHA, so a branch or a
-// short tag after @ installs the default branch. `#<ref>` is a checkout ref in every case (vercel-labs/skills
-// src/source-parser.ts). These tests pin that form.
-test('pins a branch with #, never with @', () => {
-  assert.equal(location(entry('x', 'o/r', {ref: 'canary'}), ROOT), 'o/r#canary');
-});
-
-test('pins a short tag with #', () => {
-  assert.equal(location(entry('x', 'o/r', {ref: 'v1'}), ROOT), 'o/r#v1');
-});
-
-test('encodes a branch name with a slash', () => {
-  assert.equal(location(entry('x', 'o/r', {ref: 'feature/test'}), ROOT), 'o/r#feature%2Ftest');
-});
-
-test('pins a ref on an entry with a path', () => {
-  assert.equal(location(entry('x', 'o/r', {path: 'skills', ref: 'canary'}), ROOT), 'o/r/skills#canary');
-});
-
-test('never puts a ref after @', () => {
-  for (const ref of ['canary', 'v1', 'v1.2.3', 'feature/test']) {
-    assert.doesNotMatch(location(entry('x', 'o/r', {ref}), ROOT), /@/);
-    assert.doesNotMatch(location(entry('x', 'o/r', {path: 'p', ref}), ROOT), /@/);
-  }
-});
-
 test('installs a local entry from its folder in this repo', () => {
   const argv = commands([entry('resolving-merge-conflicts', 'local', {path: 'skills/resolving-merge-conflicts'})], ROOT);
   assert.equal(argv[0][3], '/repo/skills');
@@ -95,6 +64,10 @@ test('rejects an unknown field', () => {
 
 test('rejects a missing source', () => {
   assert.throws(() => parseManifest({skills: [{group: 'g', name: 'tdd'}]}), /source/);
+});
+
+test('rejects a ref, which the manifest does not support', () => {
+  assert.throws(() => parseManifest({skills: [{group: 'g', name: 'x', source: 'o/r', ref: 'v1'}]}), /ref/);
 });
 
 test('rejects a local entry without a path', () => {

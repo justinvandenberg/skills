@@ -53,7 +53,7 @@ The skills from [justinvandenberg/plugins](https://github.com/justinvandenberg/p
 
 ## Add a skill
 
-1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, or `local` for a folder in `skills/`), and an optional `path` and `ref`.
+1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, or `local` for a folder in `skills/`), and an optional `path`. Remote skills install from the source's default branch.
 2. Run `npm test`, then `bin/skills-install --run` and `bin/skills-check`.
 
 ## Rules

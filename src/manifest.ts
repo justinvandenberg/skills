@@ -3,16 +3,16 @@
 import {readFileSync} from 'node:fs';
 
 /**
- * One skill. A remote entry has source `owner/repo`, with an optional folder (`path`) and branch, tag, or commit
- * (`ref`). A local entry has source `local` and a `path` to its folder in this repo.
+ * One skill. A remote entry has source `owner/repo`, with an optional folder (`path`), and installs from the default
+ * branch. A local entry has source `local` and a `path` to its folder in this repo.
  */
-export type Entry = {group: string; name: string; source: string; path?: string; ref?: string};
+export type Entry = {group: string; name: string; source: string; path?: string};
 
 export class ManifestError extends Error {}
 
 /** The folder in the plugins fork whose skills depend on the cursor-harness adapter skill. */
 export const HARNESS_PATH = 'agents-harness/skills';
-const FIELDS = new Set(['group', 'name', 'source', 'path', 'ref']);
+const FIELDS = new Set(['group', 'name', 'source', 'path']);
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const REPO = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
@@ -29,16 +29,13 @@ export function parseManifest(json: unknown): Entry[] {
     for (const key of ['group', 'name', 'source']) {
       if (typeof entry[key] !== 'string' || !entry[key]) throw new ManifestError(`${where}: "${key}" must be a non-empty string`);
     }
-    for (const key of ['path', 'ref']) {
-      if (key in entry && (typeof entry[key] !== 'string' || !entry[key])) throw new ManifestError(`${where}: "${key}" must be a non-empty string`);
-    }
+    if ('path' in entry && (typeof entry.path !== 'string' || !entry.path)) throw new ManifestError(`${where}: "path" must be a non-empty string`);
     const {name, source} = entry as Entry;
     if (!NAME.test(name)) throw new ManifestError(`${where}: name "${name}" must be lowercase words joined by hyphens`);
     if (seen.has(name)) throw new ManifestError(`${where}: duplicate name "${name}"`);
     seen.add(name);
     if (source === 'local') {
       if (!entry.path) throw new ManifestError(`${where}: local entry "${name}" needs a "path" in this repo`);
-      if (entry.ref) throw new ManifestError(`${where}: local entry "${name}" cannot have a "ref"`);
     } else if (!REPO.test(source)) {
       throw new ManifestError(`${where}: source "${source}" must be owner/repo or "local"`);
     }
