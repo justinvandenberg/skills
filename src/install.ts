@@ -31,16 +31,20 @@ export function commands(entries: Entry[], repoRoot: string): string[][] {
 
 /**
  * Download the default branch as a GitHub archive into a temporary folder, then install from that folder. GitHub
- * serves the archive from a cache, so it stays fast for a repository whose clone times out.
+ * serves the archive from a cache, so it stays fast for a repository whose clone times out. The script is fixed text;
+ * every manifest value is a positional argument and is only used inside double-quoted expansions, so a value can never
+ * run as shell code.
  */
+const ARCHIVE_SCRIPT = [
+  'set -eu',
+  'owner=$1; repo=$2; sub=$3; shift 3',
+  'dir=$(mktemp -d)',
+  `trap 'rm -rf "$dir"' EXIT`,
+  'curl -fsSL "https://codeload.github.com/$owner/$repo/tar.gz/HEAD" | tar -xz -C "$dir" --strip-components=1',
+  `npx ${CLI} add "$dir/$sub" ${FLAGS.join(' ')} --skill "$@"`,
+].join('; ');
+
 function archive(target: string, names: string[]): string[] {
   const [owner, repo, ...rest] = target.split('/');
-  const folder = rest.length ? `"$dir/${rest.join('/')}"` : '"$dir"';
-  return ['sh', '-c', [
-    'set -eu',
-    'dir=$(mktemp -d)',
-    `trap 'rm -rf "$dir"' EXIT`,
-    `curl -fsSL https://codeload.github.com/${owner}/${repo}/tar.gz/HEAD | tar -xz -C "$dir" --strip-components=1`,
-    `npx ${CLI} add ${folder} ${FLAGS.join(' ')} --skill ${names.join(' ')}`,
-  ].join('; ')];
+  return ['sh', '-c', ARCHIVE_SCRIPT, 'skills-archive', owner, repo, rest.join('/'), ...names];
 }

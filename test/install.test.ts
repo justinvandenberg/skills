@@ -1,4 +1,8 @@
 import test from 'node:test';
+import {spawnSync} from 'node:child_process';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import assert from 'node:assert/strict';
 import {commands, location} from '../src/install.ts';
 import {ManifestError, parseManifest, type Entry} from '../src/manifest.ts';
@@ -40,10 +44,34 @@ test('installs an archive entry from the GitHub archive, not a clone', () => {
   const argv = commands([entry('archify', 'tt-a1i/archify', {path: 'archify', archive: true})], ROOT);
   assert.equal(argv.length, 1);
   assert.deepEqual(argv[0].slice(0, 2), ['sh', '-c']);
-  const script = argv[0][2];
-  assert.match(script, /curl -fsSL https:\/\/codeload\.github\.com\/tt-a1i\/archify\/tar\.gz\/HEAD/);
-  assert.match(script, /npx skills@1\.9\.0 add "\$dir\/archify" -g -a codex claude-code -y --skill archify/);
-  assert.match(script, /trap 'rm -rf "\$dir"' EXIT/);
+  assert.match(argv[0][2], /curl -fsSL "https:\/\/codeload\.github\.com\/\$owner\/\$repo\/tar\.gz\/HEAD"/);
+  assert.match(argv[0][2], /npx skills@1\.9\.0 add "\$dir\/\$sub" -g -a codex claude-code -y --skill "\$@"/);
+  assert.match(argv[0][2], /trap 'rm -rf "\$dir"' EXIT/);
+  assert.deepEqual(argv[0].slice(3), ['skills-archive', 'tt-a1i', 'archify', 'archify', 'archify']);
+});
+
+test('keeps manifest values out of the archive script text', () => {
+  const path = '$(touch injected)`touch backtick`';
+  const [argv] = commands([entry('x', 'o/r', {path, archive: true})], ROOT);
+  assert.ok(!argv[2].includes('touch'), 'the script text holds no manifest value');
+  assert.equal(argv[6], path);
+});
+
+test('runs the archive script without executing a path, with stub curl, tar, and npx', t => {
+  const dir = mkdtempSync(join(tmpdir(), 'skills-archive-'));
+  t.after(() => rmSync(dir, {recursive: true, force: true}));
+  const bin = join(dir, 'bin');
+  mkdirSync(bin);
+  for (const name of ['curl', 'tar']) writeFileSync(join(bin, name), '#!/bin/sh\ncat >/dev/null 2>&1 || true\n', {mode: 0o755});
+  writeFileSync(join(bin, 'npx'), `#!/bin/sh\nprintf '%s\\n' "$@" > '${join(dir, 'npx-args')}'\n`, {mode: 0o755});
+  const path = '$(touch injected)`touch backtick`';
+  const [argv] = commands([entry('x', 'o/r', {path, archive: true})], ROOT);
+  const result = spawnSync(argv[0], argv.slice(1), {cwd: dir, env: {...process.env, PATH: `${bin}:${process.env.PATH}`}, encoding: 'utf8'});
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(!existsSync(join(dir, 'injected')) && !existsSync(join(dir, 'backtick')), 'no command in the path ran');
+  const args = readFileSync(join(dir, 'npx-args'), 'utf8').split('\n');
+  assert.ok(args[2].endsWith(`/${path}`), args[2]);
+  assert.deepEqual(args.slice(3, 11), ['-g', '-a', 'codex', 'claude-code', '-y', '--skill', 'x', '']);
 });
 
 test('keeps archive entries apart from clone entries of the same repo', () => {
