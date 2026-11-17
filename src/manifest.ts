@@ -5,15 +5,17 @@ import {readFileSync} from 'node:fs';
 /**
  * One skill. A remote entry has source `owner/repo`, with an optional folder (`path`), and installs from the default
  * branch. A local entry has source `local` and a `path` to its folder in this repo. An `orca` entry is a skill that
- * the Orca app ships; it installs with the Orca CLI at the version that matches the app.
+ * the Orca app ships; it installs with the Orca CLI at the version that matches the app. A remote entry with
+ * `archive: true` installs from the GitHub archive of the default branch instead of a git clone, for a repository
+ * whose clone is too slow.
  */
-export type Entry = {group: string; name: string; source: string; path?: string};
+export type Entry = {group: string; name: string; source: string; path?: string; archive?: true};
 
 export class ManifestError extends Error {}
 
 /** The folder in the plugins fork whose skills depend on the cursor-harness adapter skill. */
 export const HARNESS_PATH = 'agents-harness/skills';
-const FIELDS = new Set(['group', 'name', 'source', 'path']);
+const FIELDS = new Set(['group', 'name', 'source', 'path', 'archive']);
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const REPO = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
@@ -31,7 +33,9 @@ export function parseManifest(json: unknown): Entry[] {
       if (typeof entry[key] !== 'string' || !entry[key]) throw new ManifestError(`${where}: "${key}" must be a non-empty string`);
     }
     if ('path' in entry && (typeof entry.path !== 'string' || !entry.path)) throw new ManifestError(`${where}: "path" must be a non-empty string`);
+    if ('archive' in entry && entry.archive !== true) throw new ManifestError(`${where}: "archive" must be true when set`);
     const {name, source} = entry as Entry;
+    if (entry.archive && (source === 'local' || source === 'orca')) throw new ManifestError(`${where}: "archive" applies only to an owner/repo source`);
     if (!NAME.test(name)) throw new ManifestError(`${where}: name "${name}" must be lowercase words joined by hyphens`);
     if (seen.has(name)) throw new ManifestError(`${where}: duplicate name "${name}"`);
     seen.add(name);

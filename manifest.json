@@ -202,7 +202,9 @@
     {
       "group": "Tools",
       "name": "archify",
-      "source": "tt-a1i/archify"
+      "source": "tt-a1i/archify",
+      "path": "archify",
+      "archive": true
     },
     {
       "group": "Tools",

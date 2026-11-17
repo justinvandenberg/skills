@@ -36,6 +36,30 @@ test('rejects an orca entry with a path', () => {
   assert.throws(() => parseManifest({skills: [{group: 'g', name: 'orca-cli', source: 'orca', path: 'skills'}]}), /orca/);
 });
 
+test('installs an archive entry from the GitHub archive, not a clone', () => {
+  const argv = commands([entry('archify', 'tt-a1i/archify', {path: 'archify', archive: true})], ROOT);
+  assert.equal(argv.length, 1);
+  assert.deepEqual(argv[0].slice(0, 2), ['sh', '-c']);
+  const script = argv[0][2];
+  assert.match(script, /curl -fsSL https:\/\/codeload\.github\.com\/tt-a1i\/archify\/tar\.gz\/HEAD/);
+  assert.match(script, /npx skills@1\.9\.0 add "\$dir\/archify" -g -a codex claude-code -y --skill archify/);
+  assert.match(script, /trap 'rm -rf "\$dir"' EXIT/);
+});
+
+test('keeps archive entries apart from clone entries of the same repo', () => {
+  const argv = commands([entry('a', 'o/r', {path: 'p', archive: true}), entry('b', 'o/r', {path: 'p'})], ROOT);
+  assert.equal(argv.length, 2);
+});
+
+test('rejects archive on a local or orca entry', () => {
+  assert.throws(() => parseManifest({skills: [{group: 'g', name: 'x', source: 'local', path: 'skills/x', archive: true}]}), /archive/);
+  assert.throws(() => parseManifest({skills: [{group: 'g', name: 'x', source: 'orca', archive: true}]}), /archive/);
+});
+
+test('rejects an archive value that is not true', () => {
+  assert.throws(() => parseManifest({skills: [{group: 'g', name: 'x', source: 'o/r', archive: 'yes'}]}), /archive/);
+});
+
 test('installs a local entry from its folder in this repo', () => {
   const argv = commands([entry('resolving-merge-conflicts', 'local', {path: 'skills/resolving-merge-conflicts'})], ROOT);
   assert.equal(argv[0][3], '/repo/skills');
