@@ -23,7 +23,7 @@ function home(t: test.TestContext): string {
 /** Install a skill the way `npx skills add -g -a codex claude-code` does: a folder in .agents, a link in .claude. */
 function install(dir: string, name: string) {
   mkdirSync(join(dir, '.agents/skills', name));
-  writeFileSync(join(dir, '.agents/skills', name, 'SKILL.md'), `---\nname: ${name}\n---\n`);
+  writeFileSync(join(dir, '.agents/skills', name, 'SKILL.md'), `---\nname: ${name}\ndescription: test\n---\n# ${name}\n`);
   symlinkSync(`../../.agents/skills/${name}`, join(dir, '.claude/skills', name));
 }
 
@@ -52,7 +52,7 @@ test('reports a plain folder in ~/.claude/skills', t => {
   const dir = home(t);
   install(dir, 'cursor-harness');
   mkdirSync(join(dir, '.agents/skills/tdd'));
-  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\n---\n');
   mkdirSync(join(dir, '.claude/skills/tdd'));
   assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'plain-folder'}]);
 });
@@ -61,7 +61,7 @@ test('reports a link that points outside ~/.agents/skills', t => {
   const dir = home(t);
   install(dir, 'cursor-harness');
   mkdirSync(join(dir, '.agents/skills/tdd'));
-  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\n---\n');
   mkdirSync(join(dir, 'elsewhere/tdd'), {recursive: true});
   symlinkSync(join(dir, 'elsewhere/tdd'), join(dir, '.claude/skills/tdd'));
   assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'wrong-target'}]);
@@ -89,6 +89,38 @@ test('checks a local entry in both agents', t => {
   install(dir, 'cursor-harness');
   const local: Entry = {group: 'g', name: 'resolving-merge-conflicts', source: 'local', path: 'skills/resolving-merge-conflicts'};
   mkdirSync(join(dir, '.agents/skills/resolving-merge-conflicts'));
-  writeFileSync(join(dir, '.agents/skills/resolving-merge-conflicts/SKILL.md'), '');
+  writeFileSync(join(dir, '.agents/skills/resolving-merge-conflicts/SKILL.md'), '---\nname: resolving-merge-conflicts\n---\n');
   assert.deepEqual(check([...entries, local], dir), [{name: 'resolving-merge-conflicts', kind: 'missing-claude'}]);
+});
+
+test('reports a SKILL.md that is a folder', t => {
+  const dir = home(t);
+  install(dir, 'cursor-harness');
+  mkdirSync(join(dir, '.agents/skills/tdd/SKILL.md'), {recursive: true});
+  symlinkSync('../../.agents/skills/tdd', join(dir, '.claude/skills/tdd'));
+  assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('reports a SKILL.md with no frontmatter', t => {
+  const dir = home(t);
+  install(dir, 'tdd');
+  install(dir, 'cursor-harness');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), 'not a skill');
+  assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('reports a SKILL.md whose name is another skill', t => {
+  const dir = home(t);
+  install(dir, 'tdd');
+  install(dir, 'cursor-harness');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: triage\n---\n');
+  assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('accepts a quoted name in the frontmatter', t => {
+  const dir = home(t);
+  install(dir, 'tdd');
+  install(dir, 'cursor-harness');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: "tdd"\ndescription: x\n---\n');
+  assert.deepEqual(check(entries, dir), []);
 });

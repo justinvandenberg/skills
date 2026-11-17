@@ -4,6 +4,8 @@ import {dirname, join} from 'node:path';
 import type {Entry} from './manifest.ts';
 
 const FLAGS = ['-g', '-a', 'codex', 'claude-code', '-y'];
+/** The skills CLI version. Pinned, so a new release cannot change how sources install. Raise it by hand. */
+export const CLI = 'skills@1.9.0';
 
 /** The full install location of one entry: owner/repo[/path] on the default branch, or a folder in this repo. */
 export function location(entry: Entry, repoRoot: string): string {
@@ -18,5 +20,5 @@ export function commands(entries: Entry[], repoRoot: string): string[][] {
     const where = location(entry, repoRoot);
     groups.set(where, [...(groups.get(where) ?? []), entry.name]);
   }
-  return [...groups].map(([where, names]) => ['npx', 'skills@latest', 'add', where, ...FLAGS, '--skill', ...names]);
+  return [...groups].map(([where, names]) => ['npx', CLI, 'add', where, ...FLAGS, '--skill', ...names]);
 }

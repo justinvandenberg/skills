@@ -4,7 +4,7 @@ Agent skills for Codex and Claude Code. Each skill installs from its original so
 
 ## Use
 
-Needs Node 26 or later and `npx`.
+Needs Node 26 or later and `npx`. The installer runs the `skills` CLI at a pinned version (`CLI` in `src/install.ts`); raise it by hand.
 
 ```sh
 bin/skills-install          # print the install commands
@@ -15,6 +15,7 @@ bin/skills-check            # confirm that both agents see every skill
 `skills-check` reports, for each skill in `manifest.json`:
 
 - `missing-agents`: not in `~/.agents/skills`, so Codex cannot load it.
+- `bad-skill-file`: its `SKILL.md` is not a readable file, or its frontmatter `name` is not the manifest name.
 - `missing-claude`: not in `~/.claude/skills`, so Claude Code cannot load it.
 - `plain-folder`: a folder in `~/.claude/skills` instead of a link. Remove the folder and install again.
 - `wrong-target`: the link points somewhere other than `~/.agents/skills`.
