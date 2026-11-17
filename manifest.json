@@ -1,0 +1,312 @@
+{
+  "skills": [
+    {
+      "group": "Plan",
+      "name": "grill-with-docs",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "to-spec",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "to-tickets",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "wayfinder",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "triage",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "domain-modeling",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "codebase-design",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "improve-codebase-architecture",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "prototype",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "research",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "setup-matt-pocock-skills",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Plan",
+      "name": "ask-matt",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Build",
+      "name": "implement",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Build",
+      "name": "tdd",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Build",
+      "name": "resolving-merge-conflicts",
+      "source": "local",
+      "path": "skills/resolving-merge-conflicts"
+    },
+    {
+      "group": "Review",
+      "name": "code-review",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Review",
+      "name": "blast-radius",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "interrogate",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "arena",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "in-your-own-words",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "verify-this",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "how",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Review",
+      "name": "why",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "pr",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "make-pr-easy-to-review",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "loop-on-ci",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "get-pr-comments",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "fix-ci",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "PRs",
+      "name": "review-and-ship",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Debug",
+      "name": "diagnosing-bugs",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Writing",
+      "name": "handoff",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Writing",
+      "name": "writing-for-agents",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Writing",
+      "name": "unslop",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Writing",
+      "name": "simplified-technical-english",
+      "source": "0xpili/simplified-technical-english"
+    },
+    {
+      "group": "Tools",
+      "name": "orca-cli",
+      "source": "stablyai/orca"
+    },
+    {
+      "group": "Tools",
+      "name": "orchestration",
+      "source": "stablyai/orca"
+    },
+    {
+      "group": "Tools",
+      "name": "orca-computer-use",
+      "source": "stablyai/orca"
+    },
+    {
+      "group": "Tools",
+      "name": "archify",
+      "source": "tt-a1i/archify"
+    },
+    {
+      "group": "Tools",
+      "name": "wizard",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Tools",
+      "name": "find-skills",
+      "source": "vercel-labs/skills"
+    },
+    {
+      "group": "Tools",
+      "name": "playwright-cli",
+      "source": "microsoft/playwright-cli"
+    },
+    {
+      "group": "Technology",
+      "name": "trigger-authoring-tasks",
+      "source": "triggerdotdev/trigger.dev",
+      "path": "packages/cli-v3/skills"
+    },
+    {
+      "group": "Technology",
+      "name": "trigger-cost-savings",
+      "source": "triggerdotdev/trigger.dev",
+      "path": "packages/cli-v3/skills"
+    },
+    {
+      "group": "Technology",
+      "name": "trigger-getting-started",
+      "source": "triggerdotdev/trigger.dev",
+      "path": "packages/cli-v3/skills"
+    },
+    {
+      "group": "Technology",
+      "name": "trigger-realtime-and-frontend",
+      "source": "triggerdotdev/trigger.dev",
+      "path": "packages/cli-v3/skills"
+    },
+    {
+      "group": "Technology",
+      "name": "vercel-composition-patterns",
+      "source": "vercel-labs/agent-skills"
+    },
+    {
+      "group": "Technology",
+      "name": "vercel-react-best-practices",
+      "source": "vercel-labs/agent-skills"
+    },
+    {
+      "group": "Technology",
+      "name": "vercel-react-native-skills",
+      "source": "vercel-labs/agent-skills"
+    },
+    {
+      "group": "Technology",
+      "name": "web-design-guidelines",
+      "source": "vercel-labs/agent-skills"
+    },
+    {
+      "group": "Technology",
+      "name": "typescript-best-practices",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Technology",
+      "name": "logging-best-practices",
+      "source": "boristane/agent-skills"
+    },
+    {
+      "group": "Technology",
+      "name": "effect-ts",
+      "source": "Effect-TS/skills"
+    },
+    {
+      "group": "Memory",
+      "name": "correct",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Memory",
+      "name": "recall",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Memory",
+      "name": "show-me-your-work",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    },
+    {
+      "group": "Memory",
+      "name": "retro",
+      "source": "mattpocock/skills"
+    },
+    {
+      "group": "Harness",
+      "name": "cursor-harness",
+      "source": "justinvandenberg/plugins",
+      "path": "agents-harness/skills"
+    }
+  ]
+}

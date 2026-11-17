@@ -1,0 +1,4 @@
+#!/bin/sh
+# Run with the Node on PATH (Node 26 or later runs the TypeScript directly). Follow a link, so the
+# command also works from a folder on PATH.
+exec node "$(dirname "$(realpath "$0")")/../src/cli.ts" install "$@"
