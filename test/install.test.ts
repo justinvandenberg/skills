@@ -22,6 +22,20 @@ test('splits one source with different paths into two commands', () => {
   assert.deepEqual(argv.map(item => item[3]), ['o/r/a', 'o/r/b']);
 });
 
+test('installs Orca skills with the Orca CLI, at the version this Orca build ships', () => {
+  const argv = commands([entry('orca-cli', 'orca'), entry('orchestration', 'orca'), entry('tdd', 'mattpocock/skills')], ROOT);
+  assert.deepEqual(argv[0], ['orca', 'skills', 'install', '--agent', 'codex,claude-code', '--skill', 'orca-cli', '--skill', 'orchestration']);
+  assert.equal(argv[1][3], 'mattpocock/skills');
+});
+
+test('accepts orca as a source without a path', () => {
+  assert.equal(parseManifest({skills: [{group: 'g', name: 'orca-cli', source: 'orca'}]}).length, 1);
+});
+
+test('rejects an orca entry with a path', () => {
+  assert.throws(() => parseManifest({skills: [{group: 'g', name: 'orca-cli', source: 'orca', path: 'skills'}]}), /orca/);
+});
+
 test('installs a local entry from its folder in this repo', () => {
   const argv = commands([entry('resolving-merge-conflicts', 'local', {path: 'skills/resolving-merge-conflicts'})], ROOT);
   assert.equal(argv[0][3], '/repo/skills');

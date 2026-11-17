@@ -187,17 +187,17 @@
     {
       "group": "Tools",
       "name": "orca-cli",
-      "source": "stablyai/orca"
+      "source": "orca"
     },
     {
       "group": "Tools",
       "name": "orchestration",
-      "source": "stablyai/orca"
+      "source": "orca"
     },
     {
       "group": "Tools",
       "name": "orca-computer-use",
-      "source": "stablyai/orca"
+      "source": "orca"
     },
     {
       "group": "Tools",

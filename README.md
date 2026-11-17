@@ -36,7 +36,7 @@ bin/skills-check            # confirm that both agents see every skill
 | Writing | handoff, writing-for-agents | mattpocock/skills |
 | Writing | unslop | justinvandenberg/plugins (`agents-harness/skills`) |
 | Writing | simplified-technical-english | 0xpili/simplified-technical-english |
-| Tools | orca-cli, orchestration, orca-computer-use | stablyai/orca |
+| Tools | orca-cli, orchestration, orca-computer-use | the Orca app (`orca skills install`) |
 | Tools | archify | tt-a1i/archify |
 | Tools | wizard | mattpocock/skills |
 | Tools | find-skills | vercel-labs/skills |
@@ -54,7 +54,7 @@ The skills from [justinvandenberg/plugins](https://github.com/justinvandenberg/p
 
 ## Add a skill
 
-1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, or `local` for a folder in `skills/`), and an optional `path`. Remote skills install from the source's default branch.
+1. Add an entry to `manifest.json`: `group`, `name`, `source` (`owner/repo`, `local` for a folder in `skills/`, or `orca` for a skill that the Orca app ships), and an optional `path`. Remote skills install from the source's default branch.
 2. Run `npm test`, then `bin/skills-install --run` and `bin/skills-check`.
 
 ## Rules
