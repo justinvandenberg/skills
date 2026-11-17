@@ -10,7 +10,7 @@ const fork = (name: string): Entry => entry(name, 'justinvandenberg/plugins', {p
 
 test('groups names with the same location into one add command', () => {
   const argv = commands([entry('tdd', 'mattpocock/skills'), entry('triage', 'mattpocock/skills')], ROOT);
-  assert.deepEqual(argv, [['npx', 'skills@latest', 'add', 'mattpocock/skills', ...FLAGS, '--skill', 'tdd', 'triage']]);
+  assert.deepEqual(argv, [['npx', 'skills@1.9.0', 'add', 'mattpocock/skills', ...FLAGS, '--skill', 'tdd', 'triage']]);
 });
 
 test('uses owner/repo/path for an entry with a path', () => {
@@ -30,6 +30,10 @@ test('installs a local entry from its folder in this repo', () => {
 test('splits local entries with different parent folders', () => {
   const argv = commands([entry('x', 'local', {path: 'skills/x'}), entry('y', 'local', {path: 'vendor/y'})], ROOT);
   assert.deepEqual(argv.map(item => item[3]), ['/repo/skills', '/repo/vendor']);
+});
+
+test('pins the skills CLI to an exact version', () => {
+  for (const argv of commands([entry('tdd', 'mattpocock/skills')], ROOT)) assert.match(argv[1], /^skills@\d+\.\d+\.\d+$/);
 });
 
 test('always installs for codex and claude-code globally', () => {
