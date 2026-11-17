@@ -5,6 +5,7 @@ import {existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync
 import {join} from 'node:path';
 import {parse as parseYaml} from 'yaml';
 import type {Entry} from './manifest.ts';
+import {sanitizeMetadata} from './sanitize.ts';
 
 export type Problem = {name: string; kind: 'missing-agents' | 'bad-skill-file' | 'missing-claude' | 'plain-folder' | 'wrong-target' | 'unlisted'};
 
@@ -22,8 +23,6 @@ const lstat = (path: string) => {try {return lstatSync(path);} catch {return nul
 // The installer's own rules (skills@1.9.0: src/frontmatter.ts, src/skills.ts, src/sanitize.ts), so the checker
 // accepts exactly the SKILL.md files that the installer accepts. Keep yaml at the version that skills@1.9.0 resolves.
 const FRONTMATTER = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
-const ESCAPES = /\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]/g;
-const metadata = (value: string) => value.replace(ESCAPES, '').replace(/[\r\n]+/g, ' ').trim();
 
 /** The skill name that the installer reads from a SKILL.md file, or null when the installer would skip the file. */
 export function skillName(path: string): string | null {
@@ -32,8 +31,8 @@ export function skillName(path: string): string | null {
     const match = FRONTMATTER.exec(readFileSync(path, 'utf8'));
     const data = (match ? parseYaml(match[1]) : null) as Record<string, unknown> | null;
     if (!data || typeof data.name !== 'string' || typeof data.description !== 'string') return null;
-    const name = metadata(data.name);
-    return name && metadata(data.description) ? name : null;
+    const name = sanitizeMetadata(data.name);
+    return name && sanitizeMetadata(data.description) ? name : null;
   } catch {
     return null;
   }

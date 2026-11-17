@@ -159,3 +159,12 @@ test('accepts the description forms that real skills use', t => {
     assert.deepEqual(check(entries, withSkill(t, `---\nname: tdd\ndescription: ${description}\n---\n`)), [], description);
   }
 });
+
+test('reports a description that is only control characters, as the installer does', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd\ndescription: "\\x07"\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd\ndescription: "\\x9b\\x1b7\\x1bP data\\x1b\\\\"\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('strips terminal escapes from the name, as the installer does', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: "\\x1b[31mtdd\\x1b[0m\\x1b]0;title\\x07"\ndescription: x\n---\n')), []);
+});
