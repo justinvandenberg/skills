@@ -4,7 +4,8 @@ import {readFileSync} from 'node:fs';
 
 /**
  * One skill. A remote entry has source `owner/repo`, with an optional folder (`path`), and installs from the default
- * branch. A local entry has source `local` and a `path` to its folder in this repo.
+ * branch. A local entry has source `local` and a `path` to its folder in this repo. An `orca` entry is a skill that
+ * the Orca app ships; it installs with the Orca CLI at the version that matches the app.
  */
 export type Entry = {group: string; name: string; source: string; path?: string};
 
@@ -34,10 +35,12 @@ export function parseManifest(json: unknown): Entry[] {
     if (!NAME.test(name)) throw new ManifestError(`${where}: name "${name}" must be lowercase words joined by hyphens`);
     if (seen.has(name)) throw new ManifestError(`${where}: duplicate name "${name}"`);
     seen.add(name);
-    if (source === 'local') {
+    if (source === 'orca') {
+      if (entry.path) throw new ManifestError(`${where}: orca entry "${name}" cannot have a "path"; Orca ships it`);
+    } else if (source === 'local') {
       if (!entry.path) throw new ManifestError(`${where}: local entry "${name}" needs a "path" in this repo`);
     } else if (!REPO.test(source)) {
-      throw new ManifestError(`${where}: source "${source}" must be owner/repo or "local"`);
+      throw new ManifestError(`${where}: source "${source}" must be owner/repo, "local", or "orca"`);
     }
     return entry as Entry;
   });
