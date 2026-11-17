@@ -3,13 +3,14 @@
 
 import {existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync} from 'node:fs';
 import {join} from 'node:path';
+import {parse as parseYaml} from 'yaml';
 import type {Entry} from './manifest.ts';
 
 export type Problem = {name: string; kind: 'missing-agents' | 'bad-skill-file' | 'missing-claude' | 'plain-folder' | 'wrong-target' | 'unlisted'};
 
 export const EXPLAIN: Record<Problem['kind'], string> = {
   'missing-agents': 'not in ~/.agents/skills, so Codex cannot load it',
-  'bad-skill-file': 'SKILL.md in ~/.agents/skills is not a readable file whose frontmatter names this skill',
+  'bad-skill-file': 'SKILL.md in ~/.agents/skills is not a skill that the installer accepts with this name: unreadable, invalid YAML, or a missing name or description',
   'missing-claude': 'not in ~/.claude/skills, so Claude Code cannot load it',
   'plain-folder': 'a plain folder in ~/.claude/skills, not a link to ~/.agents/skills',
   'wrong-target': 'the link in ~/.claude/skills points somewhere other than ~/.agents/skills',
@@ -18,13 +19,21 @@ export const EXPLAIN: Record<Problem['kind'], string> = {
 
 const lstat = (path: string) => {try {return lstatSync(path);} catch {return null;}};
 
-/** The frontmatter `name` of a SKILL.md file, or null when it is not a readable file with frontmatter and a name. */
-function skillName(path: string): string | null {
+// The installer's own rules (skills@1.9.0: src/frontmatter.ts, src/skills.ts, src/sanitize.ts), so the checker
+// accepts exactly the SKILL.md files that the installer accepts. Keep yaml at the version that skills@1.9.0 resolves.
+const FRONTMATTER = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
+const ESCAPES = /\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]/g;
+const metadata = (value: string) => value.replace(ESCAPES, '').replace(/[\r\n]+/g, ' ').trim();
+
+/** The skill name that the installer reads from a SKILL.md file, or null when the installer would skip the file. */
+export function skillName(path: string): string | null {
   try {
     if (!statSync(path).isFile()) return null;
-    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(readFileSync(path, 'utf8'))?.[1];
-    const name = frontmatter && /^name:\s*(.+?)\s*$/m.exec(frontmatter)?.[1];
-    return name ? name.replace(/^(["'])(.*)\1$/, '$2') : null;
+    const match = FRONTMATTER.exec(readFileSync(path, 'utf8'));
+    const data = (match ? parseYaml(match[1]) : null) as Record<string, unknown> | null;
+    if (!data || typeof data.name !== 'string' || typeof data.description !== 'string') return null;
+    const name = metadata(data.name);
+    return name && metadata(data.description) ? name : null;
   } catch {
     return null;
   }

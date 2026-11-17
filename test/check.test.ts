@@ -52,7 +52,7 @@ test('reports a plain folder in ~/.claude/skills', t => {
   const dir = home(t);
   install(dir, 'cursor-harness');
   mkdirSync(join(dir, '.agents/skills/tdd'));
-  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\n---\n');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\ndescription: test\n---\n');
   mkdirSync(join(dir, '.claude/skills/tdd'));
   assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'plain-folder'}]);
 });
@@ -61,7 +61,7 @@ test('reports a link that points outside ~/.agents/skills', t => {
   const dir = home(t);
   install(dir, 'cursor-harness');
   mkdirSync(join(dir, '.agents/skills/tdd'));
-  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\n---\n');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: tdd\ndescription: test\n---\n');
   mkdirSync(join(dir, 'elsewhere/tdd'), {recursive: true});
   symlinkSync(join(dir, 'elsewhere/tdd'), join(dir, '.claude/skills/tdd'));
   assert.deepEqual(check(entries, dir), [{name: 'tdd', kind: 'wrong-target'}]);
@@ -89,7 +89,7 @@ test('checks a local entry in both agents', t => {
   install(dir, 'cursor-harness');
   const local: Entry = {group: 'g', name: 'resolving-merge-conflicts', source: 'local', path: 'skills/resolving-merge-conflicts'};
   mkdirSync(join(dir, '.agents/skills/resolving-merge-conflicts'));
-  writeFileSync(join(dir, '.agents/skills/resolving-merge-conflicts/SKILL.md'), '---\nname: resolving-merge-conflicts\n---\n');
+  writeFileSync(join(dir, '.agents/skills/resolving-merge-conflicts/SKILL.md'), '---\nname: resolving-merge-conflicts\ndescription: test\n---\n');
   assert.deepEqual(check([...entries, local], dir), [{name: 'resolving-merge-conflicts', kind: 'missing-claude'}]);
 });
 
@@ -123,4 +123,39 @@ test('accepts a quoted name in the frontmatter', t => {
   install(dir, 'cursor-harness');
   writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), '---\nname: "tdd"\ndescription: x\n---\n');
   assert.deepEqual(check(entries, dir), []);
+});
+
+/** Install tdd with this SKILL.md text, next to a correct cursor-harness. */
+function withSkill(t: test.TestContext, text: string): string {
+  const dir = home(t);
+  install(dir, 'tdd');
+  install(dir, 'cursor-harness');
+  writeFileSync(join(dir, '.agents/skills/tdd/SKILL.md'), text);
+  return dir;
+}
+
+test('reports a SKILL.md without a description, as the installer does', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('reports a SKILL.md with an empty description', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd\ndescription: "  "\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('reports a SKILL.md whose name is not a string', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: [tdd]\ndescription: x\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('reports invalid YAML, as the installer does', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd\ndescription: "unterminated\n---\n')), [{name: 'tdd', kind: 'bad-skill-file'}]);
+});
+
+test('accepts a name with a YAML comment', t => {
+  assert.deepEqual(check(entries, withSkill(t, '---\nname: tdd # the TDD skill\ndescription: x\n---\n')), []);
+});
+
+test('accepts the description forms that real skills use', t => {
+  for (const description of ['plain text', '"quoted: text"', '>\n  folded\n  block', '|\n  literal\n  block', '\n  plain text\n  on indented lines']) {
+    assert.deepEqual(check(entries, withSkill(t, `---\nname: tdd\ndescription: ${description}\n---\n`)), [], description);
+  }
 });
